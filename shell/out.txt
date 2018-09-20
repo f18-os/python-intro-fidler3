@@ -1,0 +1,3 @@
+ 6  6 25 test.txt
+ 1  4 18 out.txt
+ 7 10 43 total

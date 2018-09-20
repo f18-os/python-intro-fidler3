@@ -1,6 +1,4 @@
-stugg
-mom
-g
-I
-am
-AWESOME
+  3  12  50 out.txt
+  4  16  61 >
+  2   8  34 test.txt
+  9  36 145 total

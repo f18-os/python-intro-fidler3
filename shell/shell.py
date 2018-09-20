@@ -7,7 +7,7 @@ def redirect(command):
 
     pid = os.getpid()               # get and remember pid
 
-    os.write(1, ("About to fork (pid=%d)\n" % pid).encode())
+    #os.write(1, ("About to fork (pid=%d)\n" % pid).encode())
 
     rc = os.fork()
 
@@ -16,12 +16,12 @@ def redirect(command):
         sys.exit(1)
 
     elif rc == 0:                   # child
-        os.write(1, ("Child: My pid==%d.  Parent's pid=%d\n" % 
-                 (os.getpid(), pid)).encode())
+       # os.write(1, ("Child: My pid==%d.  Parent's pid=%d\n" % 
+       #          (os.getpid(), pid)).encode())
         args = command
-        print(*args , sep = " " )
+        #print(*args , sep = " " )
         os.close(1)                 # redirect child's stdout
-        sys.stdout = open(command[2], "w") # os.open("p4-output.txt", os.O_CREAT)
+        sys.stdout = open(command[3], "w") # os.open("p4-output.txt", os.O_CREAT)
         os.set_inheritable(1, True)
         for dir in re.split(":", os.environ['PATH']): # try each directory in path
             program = "%s/%s" % (dir, args[0])
@@ -34,16 +34,16 @@ def redirect(command):
         sys.exit(1)                 # terminate with error
 
     else:                           # parent (forked ok)
-        os.write(1, ("Parent: My pid=%d.  Child's pid=%d\n" % 
-                 (pid, rc)).encode())
+        #os.write(1, ("Parent: My pid=%d.  Child's pid=%d\n" % 
+#                 (pid, rc)).encode())
         childPidCode = os.wait()
-        os.write(1, ("Parent: Child %d terminated with exit code %d\n" % 
-                 childPidCode).encode())
+        #os.write(1, ("Parent: Child %d terminated with exit code %d\n" % 
+ #                childPidCode).encode())
 
 def simplecommands(args):
     pid = os.getpid()               # get and remember pid
 
-    os.write(1, ("About to fork (pid=%d)\n" % pid).encode())
+    #os.write(1, ("About to fork (pid=%d)\n" % pid).encode())
     rc = os.fork()
 
     if rc < 0:
@@ -51,8 +51,8 @@ def simplecommands(args):
         sys.exit(1)
 
     elif rc == 0:                   # child
-        os.write(1, ("Child: My pid==%d.  Parent's pid=%d\n" % 
-                 (os.getpid(), pid)).encode())
+     #   os.write(1, ("Child: My pid==%d.  Parent's pid=%d\n" % 
+        #         (os.getpid(), pid)).encode())
         for dir in re.split(":", os.environ['PATH']): # try each directory in path
             program = "%s/%s" % (dir, args[0])
             try: 
@@ -64,18 +64,22 @@ def simplecommands(args):
         sys.exit(1)                 # terminate with error
 
     else:                           # parent (forked ok)
-        os.write(1, ("Parent: My pid=%d.  Child's pid=%d\n" % 
-                 (pid, rc)).encode())
+      #  os.write(1, ("Parent: My pid=%d.  Child's pid=%d\n" % 
+         #        (pid, rc)).encode())
         childPidCode = os.wait()
-        os.write(1, ("Parent: Child %d terminated with exit code %d\n" % 
-                 childPidCode).encode())
+        #os.write(1, ("Parent: Child %d terminated with exit code %d\n" % 
+ #                childPidCode).encode())
 
+
+#this function is still a work in progress
+# Advise not to run
+# file descripter error
 def PIP(args):
     pid = os.getpid()
     print(args)
-    cmds = [args[0], args[1]]
+    cmds = [args[0], args[1]] #split commands
     cmd2 = [args[3], args[4]]
-    pr,pw = os.pipe()
+    pr,pw = os.pipe() #pipe read, pipe write
 
     for f in (pr, pw):
         os.set_inheritable(f, True)
@@ -96,7 +100,7 @@ def PIP(args):
         os.close(1) # redirect child's stdout
        # d = os.fork()
        # if d == 0:
-            
+            #some sort of parellism needs to go on...
         os.dup(pw)
         for fd in (pr, pw):
             os.close(fd)
@@ -117,14 +121,15 @@ def PIP(args):
         for line in fileinput.input():
             print("From child: <%s>" % line)
 
+#change directory
 def changeDirectory(path):
     try:
         os.chdir(path)
-    except FileNotFoundError:
+    except FileNotFoundError: #if path does not exist
         print("No such path in the directory")
         pass
     
-while 1:
+while 1: #main--- userinput
     try:
         userinput = input("$ ")
     except EOFError:

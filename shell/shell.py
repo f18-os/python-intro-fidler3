@@ -1,5 +1,4 @@
-
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 import os, sys, time, re
 
@@ -18,7 +17,7 @@ def redirect(command):
     elif rc == 0:                   # child
        # os.write(1, ("Child: My pid==%d.  Parent's pid=%d\n" % 
        #          (os.getpid(), pid)).encode())
-        args = command
+        args = [command[0], command[1]]
         #print(*args , sep = " " )
         os.close(1)                 # redirect child's stdout
         sys.stdout = open(command[3], "w") # os.open("p4-output.txt", os.O_CREAT)
@@ -78,7 +77,6 @@ def PIP(args):
     pid = os.getpid()
     print(args)
     cmds = [args[0], args[1]] #split commands
-    cmd2 = [args[3], args[4]]
     pr,pw = os.pipe() #pipe read, pipe write
 
     for f in (pr, pw):
@@ -105,9 +103,9 @@ def PIP(args):
         for fd in (pr, pw):
             os.close(fd)
         for dir in re.split(":", os.environ['PATH']): # try each directory in path
-            program = "%s/%s" % (dir, args[3])
+            program = "%s/%s" % (dir, args[0])
             try: 
-                os.execve(program, args, os.environ) # try to exec program
+                os.execve(program, cmds, os.environ) # try to exec program
             except FileNotFoundError:             # ...expected
                 pass                              # ...fail quietly
         exit()
@@ -115,6 +113,7 @@ def PIP(args):
     else:                           # parent (forked ok)
         print("Parent: My pid==%d.  Child's pid=%d" % (os.getpid(), rc), file=sys.stderr)
         os.close(0)
+	#os.popen(arg[3])
         os.dup(pr)
         for fd in (pw, pr):
             os.close(fd)
@@ -136,6 +135,7 @@ while 1: #main--- userinput
         print("\n")
         sys.exit()
     ui = userinput.split()
+    print(ui)
     if(userinput == "exit"):
             sys.exit()
     elif(ui[0] == "cd"):
